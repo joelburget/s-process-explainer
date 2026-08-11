@@ -104,7 +104,9 @@ export function initSweep(): void {
   };
 
   function render(): void {
-    const u = Number(slider.value) / 1000; // 0.450 .. 0.750
+    // Slider runs left→right as the sweep runs top→bottom, so invert:
+    // value 450 → u 0.750 (top, nothing funded), value 750 → u 0.450 (bottom).
+    const u = (1200 - Number(slider.value)) / 1000;
     const p = fundedP(u);
     const q = fundedQ(u);
     const total = p + q;
