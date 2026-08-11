@@ -195,3 +195,9 @@
     font-family: var(--mono); font-size: 11.5px; letter-spacing: .12em;
     text-transform: uppercase; color: var(--hold);
   }
+  .aside-reveal { margin-top: 6px; }
+  .aside-reveal summary {
+    cursor: pointer; font-family: var(--mono); font-size: 12.5px;
+    color: var(--soft); width: fit-content;
+  }
+  .aside-reveal summary:hover { color: var(--ink); }
