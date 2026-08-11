@@ -19,7 +19,7 @@ export function initSplit(): void {
     segmentA.textContent = `A pays $${Math.round(paysA)}k`;
     segmentB.textContent = `B pays $${Math.round(paysB)}k`;
     byId("split-note").textContent =
-      `A: $${budgetA}k budget, B: $${budgetB}k budget — so A covers ` +
+      `A: $${budgetA}k budget, B: $${budgetB}k budget — so A contributes ` +
       `${Math.round(shareA * 100)}% of every dollar they both endorse.`;
   }
 

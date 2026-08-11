@@ -49,7 +49,6 @@
     font-weight: 600; font-size: clamp(38px, 6vw, 58px);
     line-height: 1.05; letter-spacing: -0.015em; margin-bottom: 20px;
   }
-  h1 .s { color: var(--soft); font-style: italic; font-weight: 400; }
   .lede { font-size: 20px; color: var(--soft); max-width: 640px; }
   .lede em { color: var(--ink); }
 

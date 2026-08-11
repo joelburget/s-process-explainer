@@ -1,288 +1,880 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>What is the S-Process?</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-</head>
-<body>
-<header>
-  <div class="wrap">
-    <div class="kicker">Survival and Flourishing Fund · Funding allocation</div>
-    <h1>What is the <span class="s">S</span>-Process?</h1>
-    <p class="lede">A group of evaluators, one pool of money, and honest disagreement about where it should go. The S-Process — short for <em>simulation process</em> — is a deterministic algorithm that turns each evaluator's preferences into a fair final allocation. This page lets you poke at it.</p>
-  </div>
-</header>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>What is the S-Process?</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <header>
+            <div class="wrap">
+                <div class="kicker">
+                    Survival and Flourishing Fund · Funding allocation
+                </div>
+                <h1>What is the S-Process?</h1>
+                <p class="lede">
+                    How can a group of evaluators, each with their own opinions,
+                    decide how to allocate a pool of money? The S-Process —
+                    short for <em>simulation process</em> — is a deterministic
+                    algorithm that turns each evaluator's preferences into a
+                    fair final allocation.
+                </p>
+            </div>
+        </header>
 
-<div class="wrap">
+        <div class="wrap">
+            <!-- ================= §1 ================= -->
+            <section id="problem">
+                <div class="secno">§1 · Example</div>
+                <h2>Two reviewers, two proposals, one pot</h2>
+                <div class="prose">
+                    <p>
+                        Imagine two reviewers,
+                        <strong>A</strong> and <strong>B</strong>, each with a
+                        budget of
+                        <span style="font-family: var(--mono); font-size: 15px"
+                            >$500k</span
+                        >
+                        to allocate between proposals
+                        <span class="col-p">P</span> and
+                        <span class="col-q">Q</span>. Both reviewers really want
+                        to support <span class="col-p">P</span>, so P is
+                        initially the highest priority for both reviewers. But P
+                        is just one guy with a fixed budget, whose work can't be
+                        easily scaled up, so it only makes sense to allocate
+                        <strong>$250k</strong> to it.
+                        <span class="col-q">Q</span> is clearly a lower priority
+                        initially, but it can absorb much more funding, so both
+                        reviewers agree that it should receive the rest of the
+                        funding after P has received $250k.
+                    </p>
+                    <p>Three ways this could play out:</p>
+                </div>
 
-<!-- ================= §1 ================= -->
-<section id="problem">
-  <div class="secno">§1 · The problem</div>
-  <h2>Two reviewers, two proposals, one pot</h2>
-  <div class="prose">
-    <p>Imagine reviewers <strong>A</strong> and <strong>B</strong>, each with <span style="font-family:var(--mono);font-size:15px">$500k</span> to allocate between proposals <span class="col-p">P</span> and <span class="col-q">Q</span>. Both reviewers agree completely: <span class="col-p">P</span> is one person with fixed capacity — the top priority up to <strong>$250k</strong>, and not a dollar more. Everything after that should go to <span class="col-q">Q</span>, which can absorb lots of funding.</p>
-    <p>The same shape shows up whenever several evaluators share a budget — roommates splitting shared expenses, a company allocating compute across projects — with the modeling assumption that funded things have <span class="term">decreasing marginal utility</span>: each additional dollar to the same proposal is worth a bit less.</p>
-    <p>Try the three ways this could play out:</p>
-  </div>
+                <div class="panel" id="scenario-panel">
+                    <div class="panel-title">
+                        <span>Outcome explorer</span
+                        ><span class="status" id="scenario-status"></span>
+                    </div>
+                    <div
+                        class="btn-row"
+                        role="group"
+                        aria-label="Choose a scenario"
+                    >
+                        <button
+                            class="chip"
+                            data-scenario="naive"
+                            aria-pressed="true"
+                        >
+                            Everyone spends unilaterally
+                        </button>
+                        <button
+                            class="chip"
+                            data-scenario="guess"
+                            aria-pressed="false"
+                        >
+                            Everyone second-guesses
+                        </button>
+                        <button
+                            class="chip"
+                            data-scenario="sprocess"
+                            aria-pressed="false"
+                        >
+                            The S-Process
+                        </button>
+                    </div>
+                    <div class="tables-row">
+                        <div class="tbl-wrap">
+                            <div class="tbl-caption">Who pays what</div>
+                            <table id="scenario-table" aria-live="polite">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th class="col-p">P</th>
+                                        <th class="col-q">Q</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="rowhead">A</td>
+                                        <td id="sc-ap"></td>
+                                        <td id="sc-aq"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="rowhead">B</td>
+                                        <td id="sc-bp"></td>
+                                        <td id="sc-bq"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="flex: 1 1 300px; min-width: 260px">
+                            <div class="tbl-caption">
+                                What each proposal receives (marker = what both
+                                reviewers actually want)
+                            </div>
+                            <div class="bars">
+                                <div class="bar-row">
+                                    <div class="bar-label col-p">P</div>
+                                    <div class="bar-track">
+                                        <div
+                                            class="bar-fill"
+                                            id="sc-bar-p"
+                                            style="background: var(--p)"
+                                        ></div>
+                                        <div
+                                            class="bar-target"
+                                            id="sc-target-p"
+                                        ></div>
+                                    </div>
+                                    <div class="bar-amt" id="sc-amt-p"></div>
+                                </div>
+                                <div class="bar-row">
+                                    <div class="bar-label col-q">Q</div>
+                                    <div class="bar-track">
+                                        <div
+                                            class="bar-fill"
+                                            id="sc-bar-q"
+                                            style="background: var(--q)"
+                                        ></div>
+                                        <div
+                                            class="bar-target"
+                                            id="sc-target-q"
+                                        ></div>
+                                    </div>
+                                    <div class="bar-amt" id="sc-amt-q"></div>
+                                </div>
+                            </div>
+                            <p
+                                class="note"
+                                id="scenario-note"
+                                style="margin-top: 14px"
+                            ></p>
+                        </div>
+                    </div>
+                </div>
 
-  <div class="panel" id="scenario-panel">
-    <div class="panel-title"><span>Outcome explorer</span><span class="status" id="scenario-status"></span></div>
-    <div class="btn-row" role="group" aria-label="Choose a scenario">
-      <button class="chip" data-scenario="naive" aria-pressed="true">Everyone spends unilaterally</button>
-      <button class="chip" data-scenario="guess" aria-pressed="false">Everyone second-guesses</button>
-      <button class="chip" data-scenario="sprocess" aria-pressed="false">The S-Process</button>
-    </div>
-    <div class="tables-row">
-      <div class="tbl-wrap">
-        <div class="tbl-caption">Who pays what</div>
-        <table id="scenario-table" aria-live="polite">
-          <thead><tr><th></th><th class="col-p">P</th><th class="col-q">Q</th></tr></thead>
-          <tbody>
-            <tr><td class="rowhead">A</td><td id="sc-ap"></td><td id="sc-aq"></td></tr>
-            <tr><td class="rowhead">B</td><td id="sc-bp"></td><td id="sc-bq"></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div style="flex:1 1 300px; min-width:260px;">
-        <div class="tbl-caption">What each proposal receives (marker = what both reviewers actually want)</div>
-        <div class="bars">
-          <div class="bar-row">
-            <div class="bar-label col-p">P</div>
-            <div class="bar-track"><div class="bar-fill" id="sc-bar-p" style="background:var(--p)"></div><div class="bar-target" id="sc-target-p"></div></div>
-            <div class="bar-amt" id="sc-amt-p"></div>
-          </div>
-          <div class="bar-row">
-            <div class="bar-label col-q">Q</div>
-            <div class="bar-track"><div class="bar-fill" id="sc-bar-q" style="background:var(--q)"></div><div class="bar-target" id="sc-target-q"></div></div>
-            <div class="bar-amt" id="sc-amt-q"></div>
-          </div>
+                <p>
+                    By the way, this type of problem occurs in many more
+                    contexts. It could be deciding among a group of roommates
+                    how a shared budget should be used, or a tech company
+                    deciding how computing resources should be allocated among
+                    projects. In general, it could be any problem where multiple
+                    evaluators need to decide how fungible resources are
+                    allocated (with the additional modeling assumption that the
+                    things being funded have
+                    <span class="term">decreasing marginal utility</span>, that
+                    is, they become less and less worthwhile as you continue
+                    funding them).
+                </p>
+            </section>
+
+            <!-- ================= §2 ================= -->
+            <section id="tranches">
+                <div class="secno">§2 · Expressing preferences</div>
+                <h2>Tranche tables and the sweep</h2>
+                <div class="prose">
+                    <p>
+                        One way for A and B to express their preferences is with
+                        a
+                        <span class="term">tranche table</span>. Each row
+                        (tranche) says how the next slice of the
+                        <em>shared</em> budget should be spent, in priority
+                        order. In our example, both recommenders have the same
+                        preferences, so they both write the same tranche table:
+                    </p>
+                    <div class="tbl-wrap" style="margin: 8px 0 16px">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tranche</th>
+                                    <th class="col-p">P</th>
+                                    <th class="col-q">Q</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="rowhead">1</td>
+                                    <td>$250k</td>
+                                    <td>—</td>
+                                </tr>
+                                <tr>
+                                    <td class="rowhead">2</td>
+                                    <td>—</td>
+                                    <td>$750k</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p>
+                        This says that the first $250k should flow to
+                        <span class="col-p">P</span>, and then the rest (up to
+                        $750k) should flow to <span class="col-q">Q</span>. Note
+                        that even though A and B each only have a budget of
+                        $500k, they both write tranche tables saying what should
+                        be done up to the entire shared budget of
+                        <strong>$1m</strong>.
+                    </p>
+
+                    <p>
+                        Note that even though each reviewer only controls $500k,
+                        the tranche table describes what should happen to all
+                        $1m. For any amount up to $1m we can see how the
+                        reviewer would spend it. This function from budget to
+                        allocation is called a
+                        <span class="term">unilateral allocation function</span>
+                        (UAF).
+                    </p>
+
+                    <p>
+                        A tranche table can also be converted to a set of
+                        <span class="term">marginal value functions</span>
+                        (MVFs), one function per proposal, visualized below. To
+                        spend a budget, sweep a horizontal line down from the
+                        top (always spending dollars on the most valuable
+                        proposals available) until you've spent the budgret.
+                        Drag the sweep line yourself:
+                    </p>
+                </div>
+
+                <div class="panel" id="sweep-panel">
+                    <div class="panel-title">
+                        <span>The sweep — one reviewer's MVF</span
+                        ><span class="status" id="sweep-status"></span>
+                    </div>
+                    <div class="slider-row">
+                        <label for="sweep-slider">Utility level</label>
+                        <input
+                            type="range"
+                            id="sweep-slider"
+                            min="450"
+                            max="750"
+                            step="2"
+                            value="750"
+                            aria-label="Sweep utility level"
+                        />
+                        <div class="slider-val" id="sweep-val">
+                            0.750&nbsp;utils/$
+                        </div>
+                    </div>
+                    <div class="sweep-layout">
+                        <div>
+                            <svg
+                                id="sweep-svg"
+                                viewBox="0 0 620 340"
+                                role="img"
+                                aria-label="Marginal value functions for proposals P and Q with a horizontal sweep line"
+                            ></svg>
+                        </div>
+                        <div>
+                            <div class="tbl-caption">
+                                Tranche table, being executed
+                            </div>
+                            <div class="tbl-wrap">
+                                <table>
+                                    <tbody id="sweep-tranche-body">
+                                        <tr id="sw-t1">
+                                            <td class="rowhead">1</td>
+                                            <td class="col-p">P&nbsp;$250k</td>
+                                        </tr>
+                                        <tr id="sw-t2">
+                                            <td class="rowhead">2</td>
+                                            <td class="col-q">Q&nbsp;$750k</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="bars" style="margin-top: 16px">
+                                <div class="bar-row">
+                                    <div class="bar-label col-p">P</div>
+                                    <div class="bar-track">
+                                        <div
+                                            class="bar-fill"
+                                            id="sw-bar-p"
+                                            style="background: var(--p)"
+                                        ></div>
+                                    </div>
+                                    <div class="bar-amt" id="sw-amt-p"></div>
+                                </div>
+                                <div class="bar-row">
+                                    <div class="bar-label col-q">Q</div>
+                                    <div class="bar-track">
+                                        <div
+                                            class="bar-fill"
+                                            id="sw-bar-q"
+                                            style="background: var(--q)"
+                                        ></div>
+                                    </div>
+                                    <div class="bar-amt" id="sw-amt-q"></div>
+                                </div>
+                                <div class="bar-row">
+                                    <div class="bar-label">Σ</div>
+                                    <div class="bar-track">
+                                        <div
+                                            class="bar-fill"
+                                            id="sw-bar-t"
+                                            style="background: var(--ink)"
+                                        ></div>
+                                    </div>
+                                    <div class="bar-amt" id="sw-amt-t"></div>
+                                </div>
+                            </div>
+                            <p class="note" style="margin-top: 12px">
+                                Aside: these graphs have more information than
+                                the tranche tables, which didn't specify the
+                                utility associated with their tranches. Here the
+                                first tranche goes from utility 0.7 down to 0.6
+                                and the second goes from 0.6 down to 0.5.
+                            </p>
+                            <p class="note" style="margin-top: 8px">
+                                Another aside: what do horizontal and vertical
+                                lines in an MVF graph represent? Horizontal
+                                lines are when a proposal receives a bunch of
+                                funding all at once, and vertical lines are when
+                                they suddenly stop receiving any funding.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= §3 ================= -->
+            <section id="guarantees">
+                <div class="secno">§3 · The two key concepts</div>
+                <h2>Endorsement levels and contributions</h2>
+                <div class="prose">
+                    <p>
+                        In the case above, where A and B agree exactly on what
+                        should be done with the first $250k, they'll evenly
+                        split paying for it: each will contribute $125k. After
+                        that they again exactly agree on what should be done
+                        with the remaining $750k of their shared budget and will
+                        again split it evenly.
+                    </p>
+                    <p>
+                        Now, even though A and B each only directed $125k to
+                        <span class="col-p">P</span>, the first priority for
+                        each was to ensure that P would receive at least $250k
+                        (before the first dollar went to
+                        <span class="col-q">Q</span>). Hence the concept of
+                        <span class="term">endorsement levels</span>: how much
+                        each recommender ensured that each proposal would
+                        receive, whether they were paying for it or someone else
+                        was. The amount actually deducted from a reviewer's
+                        budget is their <span class="term">contribution</span>.
+                    </p>
+                    <p>
+                        Since we have two recommenders, each endorsed dollar
+                        might only "cost" ½ of that, if both recommenders agree
+                        on how it should be spent (in general, endorsement
+                        levels can be up to <em>n</em> times contributions, if
+                        there are <em>n</em> recommenders). We can create an
+                        endorsement-levels table, and compare it to the
+                        contributions table:
+                    </p>
+                    <div class="tables-row" style="margin: 16px 0">
+                        <div class="tbl-wrap">
+                            <div class="tbl-caption">Endorsement levels</div>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th class="col-p">P</th>
+                                        <th class="col-q">Q</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="rowhead">A</td>
+                                        <td>$250k</td>
+                                        <td>$750k</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="rowhead">B</td>
+                                        <td>$250k</td>
+                                        <td>$750k</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tbl-wrap">
+                            <div class="tbl-caption">Contributions</div>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th class="col-p">P</th>
+                                        <th class="col-q">Q</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="rowhead">A</td>
+                                        <td>$125k</td>
+                                        <td>$375k</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="rowhead">B</td>
+                                        <td>$125k</td>
+                                        <td>$375k</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <p>
+                        Contributions are always less than or equal to
+                        endorsement levels. In this case, A and B both endorsed
+                        P at $250k, but they were able to split the contribution
+                        evenly.
+                    </p>
+                    <p>
+                        Recall how the unilateral allocation function was
+                        phrased in terms of
+                        <em>endorsement levels</em> rather than
+                        <em>contributions</em>. This means that at each step of
+                        the process the "recommender" (represented in the
+                        algorithm as a tranche table) looks at the level of
+                        funding each proposal is currently receiving (from all
+                        recommenders), then adjusts their spending so that
+                        proposals which are under-funded (according to their
+                        UAF) receive more.
+                    </p>
+                </div>
+
+                <div class="panel" id="split-panel">
+                    <div class="panel-title">
+                        <span>Splitting a jointly endorsed $250k</span>
+                    </div>
+                    <div class="slider-row">
+                        <label for="split-slider">A's budget</label>
+                        <input
+                            type="range"
+                            id="split-slider"
+                            min="100"
+                            max="900"
+                            step="25"
+                            value="500"
+                            aria-label="A's budget in thousands of dollars"
+                        />
+                        <div class="slider-val" id="split-val">$500k</div>
+                    </div>
+                    <div class="tbl-caption">
+                        Both reviewers endorse P for its first $250k. Each
+                        shared dollar splits like this:
+                    </div>
+                    <div class="split-bar" aria-hidden="true">
+                        <div
+                            class="split-seg"
+                            id="split-a"
+                            style="background: var(--ink)"
+                        ></div>
+                        <div
+                            class="split-seg"
+                            id="split-b"
+                            style="background: var(--hold)"
+                        ></div>
+                    </div>
+                    <p class="note" id="split-note"></p>
+                    <p class="note" style="margin-top: 8px">
+                        Why split proportionally rather than evenly? The problem
+                        with splitting each dollar evenly is that the
+                        preferences of the recommender with less funding get
+                        washed out: if A's budget is $100k but B's budget is
+                        $900k, the result will look exactly like B's preference.
+                        In contrast, when sharing proportionally to total
+                        budget, the smaller recommender can have an effect.
+                    </p>
+                </div>
+            </section>
+
+            <!-- ================= §4 ================= -->
+            <section id="algorithm">
+                <div class="secno">§4 · The algorithm, live</div>
+                <h2>How does the algorithm work?</h2>
+                <div class="prose">
+                    <p>
+                        It's easy to compute contributions from endorsement
+                        levels: for each dollar that multiple evaluators
+                        endorse, we split the contribution for that dollar in
+                        proportion to their budgets. We just need to find the
+                        contribution level for each recommender that won't put
+                        them over budget.
+                    </p>
+                    <p>
+                        Knowing that, we can let each evaluator endorse a
+                        <em>safe</em> amount, for which we know their
+                        contribution will be less than (or equal to) their
+                        budget. Initially the safe amount is just their budget,
+                        but once we've let each evaluator endorse that amount,
+                        we see how much they were actually "charged". If they
+                        endorsed $1,000 but were only charged $750, we know it's
+                        safe to let them endorse $1,250 next time, since only in
+                        the worst case will they be liable for all of the
+                        additional $250.
+                    </p>
+                    <p>
+                        So the algorithm iteratively increases each
+                        recommender's endorsement level by the maximum safe
+                        amount, converging on the endorsement levels which cause
+                        them all to spend their whole budget. You might imagine
+                        this as a kind of simulation: we simulate what each
+                        evaluator would do with a larger budget than they're
+                        actually in charge of, then charge them only for the
+                        part of it they're responsible for.
+                    </p>
+                    <p>
+                        The playground below runs a real implementation. Pick a
+                        preset scenario or edit anything by hand — tranche
+                        entries are the <em>marginal</em> dollars each tranche
+                        adds, in $k — then scrub through epochs to watch it
+                        converge. Below the tables, the
+                        <span class="term">endorsement towers</span> — the same
+                        view the production app draws — show what the numbers
+                        mean: how each proposal's funding is built up from bands
+                        of jointly endorsed money.
+                    </p>
+                </div>
+
+                <div class="panel" id="playground">
+                    <div class="panel-title">
+                        <span>S-Process playground</span
+                        ><span class="status" id="pg-status"></span>
+                    </div>
+                    <div
+                        class="btn-row"
+                        id="pg-presets"
+                        role="group"
+                        aria-label="Scenario presets"
+                    ></div>
+                    <p
+                        class="note"
+                        id="pg-preset-note"
+                        style="margin: -6px 0 14px"
+                    ></p>
+                    <div class="pg-structure">
+                        <button class="small" id="pg-add-ev">
+                            + evaluator
+                        </button>
+                        <button class="small" id="pg-rm-ev">− evaluator</button>
+                        <button class="small" id="pg-add-prop">
+                            + proposal
+                        </button>
+                        <button class="small" id="pg-rm-prop">
+                            − proposal
+                        </button>
+                        <button class="small" id="pg-add-tr">+ tranche</button>
+                        <button class="small" id="pg-rm-tr">− tranche</button>
+                    </div>
+                    <div class="pg-inputs" id="pg-inputs"></div>
+
+                    <div class="pg-out">
+                        <div class="epoch-row">
+                            <div class="epoch-label">Epoch</div>
+                            <input
+                                type="range"
+                                id="pg-epoch"
+                                min="0"
+                                max="0"
+                                value="0"
+                                aria-label="Epoch to display"
+                            />
+                            <div class="epoch-count" id="pg-epoch-count"></div>
+                        </div>
+                        <svg
+                            id="pg-spark"
+                            viewBox="0 0 620 90"
+                            role="img"
+                            aria-label="Maximum remaining budget by epoch"
+                            style="margin: 4px 0 14px"
+                        ></svg>
+                        <div id="pg-warn"></div>
+                        <div class="tables-row">
+                            <div class="tbl-wrap">
+                                <div class="tbl-caption">
+                                    Endorsement levels ($k)
+                                </div>
+                                <table id="pg-guarantees"></table>
+                            </div>
+                            <div class="tbl-wrap">
+                                <div class="tbl-caption">
+                                    Contributions ($k) — column totals = money
+                                    received
+                                </div>
+                                <table id="pg-accounts"></table>
+                            </div>
+                        </div>
+
+                        <div class="tbl-caption" style="margin-top: 24px">
+                            Endorsement towers — how each proposal got funded
+                        </div>
+                        <div
+                            class="tower-legend"
+                            id="pg-tower-legend"
+                            aria-hidden="true"
+                        ></div>
+                        <svg
+                            id="pg-towers"
+                            viewBox="0 0 620 300"
+                            role="img"
+                            aria-label="Endorsement towers: stacked funding bands per proposal, sliced by evaluator"
+                        ></svg>
+                        <p class="note" style="max-width: 640px">
+                            Read a tower bottom-up. Its height is the highest
+                            amount anyone endorsed the proposal for — which is
+                            exactly what it receives. Each horizontal band is a
+                            layer of money, sliced among the evaluators who
+                            endorsed <em>at least</em> that high, with slice
+                            widths proportional to their budgets. Hover a slice
+                            or a legend entry to isolate one evaluator; scrub
+                            the epoch slider and watch the towers grow.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="prose">
+                    <p class="footnote">
+                        The surprise is that if we follow these rules (namely:
+                        (1) fund projects by tranche — i.e. we start with what
+                        recommenders estimate as the highest utility per dollar,
+                        and continue spending dollars with less utility, but
+                        always the highest utility available at that point — and
+                        (2) proportional contributions — when multiple
+                        recommenders help fund the same dollar, they should each
+                        direct the same proportion of their total spending to
+                        that dollar), then we <em>must</em> use the S-Process.
+                        That is, if your procedure follows those rules, then it
+                        must always output the same result as the S-Process.
+                    </p>
+                </div>
+            </section>
+
+            <!-- ================= §5 ================= -->
+            <section id="averaging">
+                <div class="secno">§5 · A tempting alternative</div>
+                <h2>
+                    Why not just average the recommendations of different
+                    evaluators?
+                </h2>
+                <div class="prose">
+                    <p>
+                        Imagine we have these two tranche tables, again for
+                        evaluators A and B:
+                    </p>
+                    <div class="tables-row" style="margin: 8px 0 16px">
+                        <div class="tbl-wrap">
+                            <div class="tbl-caption">A's tranche table</div>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Tranche</th>
+                                        <th class="col-p">P</th>
+                                        <th class="col-q">Q</th>
+                                        <th class="col-r">R</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="rowhead">1</td>
+                                        <td>500</td>
+                                        <td>—</td>
+                                        <td>—</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="rowhead">2</td>
+                                        <td>500</td>
+                                        <td>—</td>
+                                        <td>500</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tbl-wrap">
+                            <div class="tbl-caption">B's tranche table</div>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Tranche</th>
+                                        <th class="col-p">P</th>
+                                        <th class="col-q">Q</th>
+                                        <th class="col-r">R</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="rowhead">1</td>
+                                        <td>—</td>
+                                        <td>500</td>
+                                        <td>—</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="rowhead">2</td>
+                                        <td>—</td>
+                                        <td>500</td>
+                                        <td>500</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <p>
+                        We run into the problem that we haven't defined how to
+                        average recommendations. (It may seem obvious in this
+                        case because both tranche tables distribute the same
+                        amount in both their first and second rows, but we need
+                        to say how to average in general.)
+                    </p>
+                    <p>
+                        The way the S-Process approaches averaging is via the
+                        conversion of tranche tables to marginal value functions
+                        — the curves from §2. To calculate the average MVF, we
+                        sample from both MVFs at each significant point ($0,
+                        $500k, and $1m), averaging the result. Finally, we
+                        convert back to tranche representation:
+                    </p>
+                    <div class="tbl-wrap" style="margin: 8px 0 16px">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Averaged tranche</th>
+                                    <th class="col-p">P</th>
+                                    <th class="col-q">Q</th>
+                                    <th class="col-r">R</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="rowhead">1</td>
+                                    <td>—</td>
+                                    <td>—</td>
+                                    <td>500</td>
+                                </tr>
+                                <tr>
+                                    <td class="rowhead">2</td>
+                                    <td>1000</td>
+                                    <td>1000</td>
+                                    <td>—</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p>
+                        As you can see, <span class="col-r">R</span> gets all
+                        $500 before P or Q gets any money! In general, averaging
+                        is good for proposals which a lot of evaluators like at
+                        least a little, which can cost proposals which fewer
+                        recommenders like a lot!
+                    </p>
+                    <p>
+                        We think that both types of proposals have merit, and we
+                        use a <span class="term">mean recommender</span> which
+                        takes the average of all the human evaluators'
+                        evaluations, but we then use the S-Process to send money
+                        through all of the recommenders. This way proposals with
+                        less enthusiastic broad support and proposals with
+                        strong polarized support can both receive some funding.
+                    </p>
+                </div>
+            </section>
+
+            <!-- ================= §6 ================= -->
+            <section id="faq">
+                <div class="secno">§6 · FAQ</div>
+                <h2>Frequently asked questions</h2>
+                <div class="prose">
+                    <h3>
+                        Instead of using this complicated algorithm, why not
+                        just talk and come to a consensus?
+                    </h3>
+                    <p>
+                        I think this is a good suggestion for many projects! One
+                        big issue that the S-Process avoids is when one
+                        evaluator is in a position of power, they may be able to
+                        railroad the other evaluators and have too much
+                        influence on the final allocation.
+                    </p>
+                    <p>
+                        Another issue with just talking it out is that you may
+                        never come to a complete consensus. The S-Process
+                        provides a principled way to resolve such conflicts.
+                    </p>
+                    <p>
+                        Another reason is that your evaluators might not all be
+                        humans. One thing you might do is to create fake
+                        "evaluators" which represent different ways of thinking
+                        about what to fund. Two examples from the 2025 SFF
+                        funding round:
+                    </p>
+                    <p>
+                        <strong>1.</strong> One recommender wrote a program to
+                        group together different types of projects, each of
+                        which they find valuable in different ways, and run an
+                        instance of the S-Process on each of these groups. You
+                        can also do this with a deeper hierarchy, running the
+                        S-Process at each level. The end result was a tranche
+                        table he could then feed into the S-Process app.<br />
+                        <strong>2.</strong> In the 2025 round, we wanted to
+                        automatically give a bonus to proposals which have a
+                        matching pledge (for every $1 SFF gives to them, they'll
+                        receive some amount of money from other donors). We
+                        created a set of
+                        <span class="term">matching recommenders</span> by
+                        taking the tranche tables of regular recommenders and
+                        adjusting them to account for the extra value some
+                        dollars provide due to matching. We then ran an
+                        S-Process, where both regular recommenders and matching
+                        recommenders both receive some budget.
+                    </p>
+                    <p>
+                        Finally, the S-Process is a deterministic algorithm
+                        (with a correct answer), so it's a nice reproducible way
+                        of recording why each proposal received what it did. You
+                        record each evaluator's tranche tables and can always
+                        re-run the algorithm to verify that every proposal
+                        received what they should have. Compare to deciding by
+                        consensus, where you may not have written down all of
+                        the reasoning which contributed to the final decision.
+                    </p>
+                    <h3>Should I care about endorsement levels?</h3>
+                    <p>
+                        I primarily care how much I'm sending to each proposal
+                        (i.e. my <em>contribution</em>), so is there any reason
+                        to care about endorsement levels?
+                    </p>
+                    <p>
+                        In fact, I recommend focusing on endorsement levels for
+                        two reasons:
+                    </p>
+                    <p>
+                        <strong>1.</strong> Because they correspond to what is
+                        actually happening in the algorithm: the simulated
+                        evaluator going down your tranche list (or MVF graph if
+                        you prefer) is <em>endorsing</em> funding.<br />
+                        <strong>2.</strong> Endorsement levels are in your
+                        control, but contributions are not. The tranche list is
+                        your way of saying, for any budget, how you would spend
+                        it (in terms of endorsement levels). But contributions
+                        depend on both the endorsement levels and also all of
+                        the other recommenders.
+                    </p>
+                </div>
+            </section>
         </div>
-        <p class="note" id="scenario-note" style="margin-top:14px;"></p>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- ================= §2 ================= -->
-<section id="tranches">
-  <div class="secno">§2 · Expressing preferences</div>
-  <h2>Tranche tables and the sweep</h2>
-  <div class="prose">
-    <p>How do A and B tell the algorithm what they want? With a <span class="term">tranche table</span>. Each row (tranche) says how the next slice of the <em>shared</em> budget should be spent, in priority order. Both reviewers here write the same table:</p>
-    <div class="tbl-wrap" style="margin:8px 0 16px;">
-      <table>
-        <thead><tr><th>Tranche</th><th class="col-p">P</th><th class="col-q">Q</th></tr></thead>
-        <tbody>
-          <tr><td class="rowhead">1</td><td>$250k</td><td>—</td></tr>
-          <tr><td class="rowhead">2</td><td>—</td><td>$750k</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p>Note the totals: even though each reviewer only controls $500k, the table describes what should happen to the <strong>whole $1m pool</strong> — "if I were in charge of any budget, here's how I'd spend it, best dollars first." This function from budget to allocation is called a <span class="term">unilateral allocation function</span> (UAF).</p>
-    <p>An equivalent picture is the <span class="term">marginal value function</span> (MVF): each proposal gets a curve of utility-per-dollar against how much it has received. To spend a budget, sweep a horizontal line <em>down</em> from the top — always buying the most valuable dollars available — until the money runs out. Drag the sweep line yourself:</p>
-  </div>
-
-  <div class="panel" id="sweep-panel">
-    <div class="panel-title"><span>The sweep — one reviewer's MVF</span><span class="status" id="sweep-status"></span></div>
-    <div class="slider-row">
-      <label for="sweep-slider">Utility level</label>
-      <input type="range" id="sweep-slider" min="450" max="750" step="2" value="750" aria-label="Sweep utility level">
-      <div class="slider-val" id="sweep-val">0.750&nbsp;utils/$</div>
-    </div>
-    <div class="sweep-layout">
-      <div>
-        <svg id="sweep-svg" viewBox="0 0 620 340" role="img" aria-label="Marginal value functions for proposals P and Q with a horizontal sweep line"></svg>
-      </div>
-      <div>
-        <div class="tbl-caption">Tranche table, being executed</div>
-        <div class="tbl-wrap">
-          <table>
-            <tbody id="sweep-tranche-body">
-              <tr id="sw-t1"><td class="rowhead">1</td><td class="col-p">P&nbsp;$250k</td></tr>
-              <tr id="sw-t2"><td class="rowhead">2</td><td class="col-q">Q&nbsp;$750k</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="bars" style="margin-top:16px;">
-          <div class="bar-row">
-            <div class="bar-label col-p">P</div>
-            <div class="bar-track"><div class="bar-fill" id="sw-bar-p" style="background:var(--p)"></div></div>
-            <div class="bar-amt" id="sw-amt-p"></div>
-          </div>
-          <div class="bar-row">
-            <div class="bar-label col-q">Q</div>
-            <div class="bar-track"><div class="bar-fill" id="sw-bar-q" style="background:var(--q)"></div></div>
-            <div class="bar-amt" id="sw-amt-q"></div>
-          </div>
-          <div class="bar-row">
-            <div class="bar-label">Σ</div>
-            <div class="bar-track"><div class="bar-fill" id="sw-bar-t" style="background:var(--ink)"></div></div>
-            <div class="bar-amt" id="sw-amt-t"></div>
-          </div>
-        </div>
-        <p class="note" style="margin-top:12px;">Horizontal stretches of a curve mean a proposal soaks up funding all at once; vertical drops mean it abruptly stops receiving anything.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ================= §3 ================= -->
-<section id="guarantees">
-  <div class="secno">§3 · The two key concepts</div>
-  <h2>Endorsement levels vs. contributions</h2>
-  <div class="prose">
-    <p>Run the sweep on both reviewers at once and something pleasant happens: A and B agree exactly on the first $250k (all to <span class="col-p">P</span>), so they <strong>split paying for it</strong> — $125k each. They agree again on the remaining $750k and split that too. The final payments are the ideal outcome from §1.</p>
-    <p>But each reviewer did more than pay $125k toward P. Each one made sure — before letting a single dollar reach Q — that P would receive its full $250k. That is an <span class="term">endorsement level</span>: how much a reviewer ensured a proposal would get, whether or not they were the only one paying for it. The amount actually deducted from a reviewer's budget is their <span class="term">contribution</span>.</p>
-    <div class="tables-row" style="margin:16px 0;">
-      <div class="tbl-wrap">
-        <div class="tbl-caption">Endorsement levels</div>
-        <table>
-          <thead><tr><th></th><th class="col-p">P</th><th class="col-q">Q</th></tr></thead>
-          <tbody>
-            <tr><td class="rowhead">A</td><td>$250k</td><td>$750k</td></tr>
-            <tr><td class="rowhead">B</td><td>$250k</td><td>$750k</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="tbl-wrap">
-        <div class="tbl-caption">Contributions</div>
-        <table>
-          <thead><tr><th></th><th class="col-p">P</th><th class="col-q">Q</th></tr></thead>
-          <tbody>
-            <tr><td class="rowhead">A</td><td>$125k</td><td>$375k</td></tr>
-            <tr><td class="rowhead">B</td><td>$125k</td><td>$375k</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-    <p>A contribution is always ≤ the endorsement level — with <em>n</em> reviewers, an endorsed dollar can cost as little as 1/<em>n</em> of a dollar, when everyone agrees on it.</p>
-    <h3>Proportional contributions</h3>
-    <p>When several reviewers endorse the same dollar, who pays how much of it? The rule is: <strong>in proportion to their budgets</strong>. Equal budgets, equal split. If A's budget were twice B's, A would cover ⅔ of every shared dollar. Try it:</p>
-  </div>
-
-  <div class="panel" id="split-panel">
-    <div class="panel-title"><span>Splitting a jointly endorsed $250k</span></div>
-    <div class="slider-row">
-      <label for="split-slider">A's budget</label>
-      <input type="range" id="split-slider" min="100" max="900" step="25" value="500" aria-label="A's budget in thousands of dollars">
-      <div class="slider-val" id="split-val">$500k</div>
-    </div>
-    <div class="tbl-caption">Both reviewers endorse P for its first $250k. Each shared dollar splits like this:</div>
-    <div class="split-bar" aria-hidden="true">
-      <div class="split-seg" id="split-a" style="background:var(--ink)"></div>
-      <div class="split-seg" id="split-b" style="background:var(--hold)"></div>
-    </div>
-    <p class="note" id="split-note"></p>
-    <p class="note" style="margin-top:8px;">Why proportional rather than an even split per dollar? With an even split, a $100k reviewer sharing a pool with a $900k reviewer would leave no trace — the outcome would look exactly like the big reviewer's preferences. Proportional sharing keeps the smaller budget's voice audible at its proper volume.</p>
-  </div>
-
-  <div class="prose">
-    <p>Two reasons to think in endorsement levels rather than contributions:</p>
-    <p><strong>1.</strong> Endorsement levels are what actually happens inside the algorithm — the simulated reviewer walking down your tranche list is setting endorsement levels.<br>
-    <strong>2.</strong> Endorsement levels are the part <em>you control</em>. Your tranche table says, for any budget, what you'd endorse. Your contributions depend on everyone else's tables too.</p>
-  </div>
-</section>
-
-<!-- ================= §4 ================= -->
-<section id="algorithm">
-  <div class="secno">§4 · The algorithm, live</div>
-  <h2>Simulation until fixed point</h2>
-  <div class="prose">
-    <p>Contributions are easy to compute <em>from</em> endorsement levels (split every shared dollar proportionally) — but not the other way around. So the algorithm sneaks up on the answer:</p>
-    <p>Let each reviewer endorse a <em>safe</em> amount — one where the resulting charge can't exceed their budget. Initially that's just the budget itself. Then look at what they were actually charged. If a reviewer endorsed $1,000 but was only charged $750, it's safe to let them endorse $1,250 next round: even in the worst case, the extra $250 falls entirely on them. Each round, every simulated reviewer re-reads their tranche table with this slightly larger virtual budget and adjusts their endorsement levels; charges are recomputed; repeat. The adjustments shrink each round, converging to a fixed point where every budget is exactly spent. Hence <em>simulation process</em>.</p>
-    <p>The playground below runs the real implementation (ported from <code style="font-family:var(--mono);font-size:14px">singleLayerSProcess.ts</code>). Pick a preset scenario or edit anything by hand — tranche entries are the <em>marginal</em> dollars each tranche adds, in $k — then scrub through epochs to watch it converge. Below the tables, the <span class="term">endorsement towers</span> — the same view the production app draws — show what the numbers mean: how each proposal's funding is built up from bands of jointly endorsed money.</p>
-  </div>
-
-  <div class="panel" id="playground">
-    <div class="panel-title"><span>S-Process playground</span><span class="status" id="pg-status"></span></div>
-    <div class="btn-row" id="pg-presets" role="group" aria-label="Scenario presets"></div>
-    <p class="note" id="pg-preset-note" style="margin:-6px 0 14px;"></p>
-    <div class="pg-structure">
-      <button class="small" id="pg-add-ev">+ evaluator</button>
-      <button class="small" id="pg-rm-ev">− evaluator</button>
-      <button class="small" id="pg-add-prop">+ proposal</button>
-      <button class="small" id="pg-rm-prop">− proposal</button>
-      <button class="small" id="pg-add-tr">+ tranche</button>
-      <button class="small" id="pg-rm-tr">− tranche</button>
-    </div>
-    <div class="pg-inputs" id="pg-inputs"></div>
-
-    <div class="pg-out">
-      <div class="epoch-row">
-        <div class="epoch-label">Epoch</div>
-        <input type="range" id="pg-epoch" min="0" max="0" value="0" aria-label="Epoch to display">
-        <div class="epoch-count" id="pg-epoch-count"></div>
-      </div>
-      <svg id="pg-spark" viewBox="0 0 620 90" role="img" aria-label="Maximum remaining budget by epoch" style="margin:4px 0 14px;"></svg>
-      <div id="pg-warn"></div>
-      <div class="tables-row">
-        <div class="tbl-wrap">
-          <div class="tbl-caption">Endorsement levels ($k)</div>
-          <table id="pg-guarantees"></table>
-        </div>
-        <div class="tbl-wrap">
-          <div class="tbl-caption">Contributions ($k) — column totals = money received</div>
-          <table id="pg-accounts"></table>
-        </div>
-      </div>
-
-      <div class="tbl-caption" style="margin-top:24px;">Endorsement towers — how each proposal got funded</div>
-      <div class="tower-legend" id="pg-tower-legend" aria-hidden="true"></div>
-      <svg id="pg-towers" viewBox="0 0 620 300" role="img" aria-label="Endorsement towers: stacked funding bands per proposal, sliced by evaluator"></svg>
-      <p class="note" style="max-width:640px;">Read a tower bottom-up. Its height is the highest amount anyone endorsed the proposal for — which is exactly what it receives. Each horizontal band is a layer of money, sliced among the evaluators who endorsed <em>at least</em> that high, with slice widths proportional to their budgets. Hover a slice or a legend entry to isolate one evaluator; scrub the epoch slider and watch the towers grow.</p>
-    </div>
-  </div>
-
-  <div class="prose">
-    <p class="footnote">A surprising uniqueness result: any procedure that (1) funds the highest-marginal-utility dollars first and (2) shares each jointly funded dollar in proportion to budgets must produce the same output as the S-Process. The two rules pin the answer down completely — the algorithm is just one way of finding it.</p>
-  </div>
-</section>
-
-<!-- ================= §5 ================= -->
-<section id="averaging">
-  <div class="secno">§5 · A tempting alternative</div>
-  <h2>Why not just average everyone's tables?</h2>
-  <div class="prose">
-    <p>First, averaging isn't even defined until you say how — and the natural definition (convert every table to an MVF, average the curves at each point, convert back) has a real cost. Consider polarized reviewers: A loves <span class="col-p">P</span>, B loves <span class="col-q">Q</span>, and both like <span class="col-r">R</span> a little. Averaged, R's mild broad support beats each favorite's strong narrow support:</p>
-    <div class="tbl-wrap" style="margin:8px 0 16px;">
-      <table>
-        <thead><tr><th>Averaged tranche</th><th class="col-p">P</th><th class="col-q">Q</th><th class="col-r">R</th></tr></thead>
-        <tbody>
-          <tr><td class="rowhead">1</td><td>—</td><td>—</td><td>500</td></tr>
-          <tr><td class="rowhead">2</td><td>1000</td><td>1000</td><td>—</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><span class="col-r">R</span> receives all $500 before P or Q sees a dollar. Averaging favors proposals that many evaluators like <em>a little</em>, at the expense of proposals that fewer evaluators like <em>a lot</em>.</p>
-    <p>Both kinds of proposals have merit. So in practice SFF does both: a <span class="term">mean recommender</span> — a synthetic evaluator holding the average of everyone's evaluations — receives some budget, and money also flows through every individual recommender via the S-Process. Broad lukewarm support and strong polarized support can each win some funding.</p>
-  </div>
-</section>
-
-<!-- ================= §6 ================= -->
-<section id="faq">
-  <div class="secno">§6 · FAQ</div>
-  <h2>Why an algorithm at all?</h2>
-  <div class="prose">
-    <h3>Why not just talk it out?</h3>
-    <p>Often you should! But discussion has failure modes the S-Process avoids. A powerful evaluator can railroad the room. Consensus may simply never arrive, and the S-Process resolves residual disagreement in a principled way. And it's deterministic: record the tranche tables and you can re-run the allocation forever, with a full audit trail of why each proposal got what it did — something a conversation rarely leaves behind.</p>
-    <h3>Do evaluators have to be human?</h3>
-    <p>No — and this is where it gets fun. One recommender wrote a program that grouped project types, ran an S-Process within each group (this nests to any depth), and fed the resulting tranche table in as their evaluation. In the 2025 round, SFF built synthetic <span class="term">matching recommenders</span> — copies of real recommenders' tables adjusted for the extra value of dollars that unlock matching pledges — and gave them budget alongside the humans.</p>
-    <h3>What should I, an evaluator, actually think about?</h3>
-    <p>Your tranche table — that is, your endorsement levels. It's the complete, honest answer to "for any budget, how would you spend it?" The algorithm handles the rest.</p>
-  </div>
-</section>
-
-</div>
-
-<footer>
-  <div class="wrap">
-    S-Process explainer · Survival and Flourishing Fund · The playground runs a faithful JavaScript port of the production algorithm (endorsement-level sharing + unilateral allocation with binary search over cumulative tranche sums).
-  </div>
-</footer>
-<script type="module" src="/src/main.ts"></script>
-</body>
+        <footer>
+            <div class="wrap">
+                S-Process explainer · Survival and Flourishing Fund · The
+                playground runs a faithful JavaScript port of the production
+                algorithm (endorsement-level sharing + unilateral allocation
+                with binary search over cumulative tranche sums).
+            </div>
+        </footer>
+        <script type="module" src="/src/main.ts"></script>
+    </body>
 </html>

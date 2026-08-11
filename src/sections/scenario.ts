@@ -17,7 +17,7 @@ const SCENARIOS: Record<ScenarioKey, Scenario> = {
     ],
     status: "P is double-funded",
     note:
-      "Each reviewer independently spends their own $500k down their priority list. " +
+      "Each reviewer independently spends their own $500k on their priorities. " +
       "P ends up with $500k — twice what either reviewer wanted it to have.",
   },
   guess: {
@@ -27,8 +27,8 @@ const SCENARIOS: Record<ScenarioKey, Scenario> = {
     ],
     status: "P gets nothing",
     note:
-      "A assumes B will cover P, and B assumes the same about A. Both dump everything " +
-      "into Q. Strategic second-guessing produces the worst outcome of all.",
+      "A anticipates that B will fully fund P, and B assumes that A will do the same. " +
+      "Both put all of their money in Q, an even worse outcome.",
   },
   sprocess: {
     table: [
@@ -37,8 +37,9 @@ const SCENARIOS: Record<ScenarioKey, Scenario> = {
     ],
     status: "exactly right",
     note:
-      "P gets its $250k, funded half by each reviewer; the rest flows to Q. This is the " +
-      "allocation the S-Process finds automatically — no coordination or guessing required.",
+      "We want to end up here: P gets its $250k, half-funded by each reviewer, " +
+      "and the rest flows to Q. The S-Process is an algorithm for finding this " +
+      "allocation automatically.",
   },
 };
 
@@ -51,7 +52,9 @@ export function initScenario(): void {
     bp: byId("sc-bp"),
     bq: byId("sc-bq"),
   };
-  const buttons = document.querySelectorAll<HTMLButtonElement>("#scenario-panel .chip");
+  const buttons = document.querySelectorAll<HTMLButtonElement>(
+    "#scenario-panel .chip",
+  );
 
   function render(key: ScenarioKey): void {
     const scenario = SCENARIOS[key];
@@ -78,7 +81,9 @@ export function initScenario(): void {
   }
 
   buttons.forEach((b) =>
-    b.addEventListener("click", () => render(b.dataset["scenario"] as ScenarioKey)),
+    b.addEventListener("click", () =>
+      render(b.dataset["scenario"] as ScenarioKey),
+    ),
   );
   render("naive");
 }
