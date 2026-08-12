@@ -802,11 +802,56 @@
                     <p>
                         The way the S-Process approaches averaging is via the
                         conversion of tranche tables to marginal value functions
-                        — the curves from §2. To calculate the average MVF, we
-                        sample from both MVFs at each significant point ($0,
-                        $500k, and $1m), averaging the result. Finally, we
-                        convert back to tranche representation:
+                        — the curves from §2 — visualized below. As before, read
+                        each graph from top to bottom: a horizontal line sweeps
+                        down, funding the proposals with the highest marginal
+                        utility first.
                     </p>
+                    <div class="chart-row">
+                        <div class="chart-wrap">
+                            <div class="tbl-caption">A's MVF</div>
+                            <svg
+                                id="avg-mvf-a"
+                                viewBox="0 0 360 260"
+                                role="img"
+                                aria-label="A's marginal value functions: P declines from 0.7 to 0.5 across the full $1m; R declines from 0.6 to 0.5 and stops at $500k"
+                            ></svg>
+                        </div>
+                        <div class="chart-wrap">
+                            <div class="tbl-caption">B's MVF</div>
+                            <svg
+                                id="avg-mvf-b"
+                                viewBox="0 0 360 260"
+                                role="img"
+                                aria-label="B's marginal value functions: Q declines from 0.7 to 0.5 across the full $1m; R declines from 0.6 to 0.5 and stops at $500k"
+                            ></svg>
+                        </div>
+                    </div>
+                    <p>
+                        To calculate the average MVF, shown below, we sample
+                        from both MVFs at each significant point ($0, $500k, and
+                        $1m), averaging the result. Note that the MVF shown here
+                        is normalized to have values from 0 to 1. Because A
+                        assigns <span class="col-q">Q</span> no utility and B
+                        assigns <span class="col-p">P</span> none, both are
+                        dragged down — while <span class="col-r">R</span>, which
+                        both endorse, stays in place.
+                    </p>
+                    <div class="chart-row">
+                        <div class="chart-wrap" style="max-width: 440px">
+                            <div class="tbl-caption">
+                                Average of A and B, normalized — P and Q
+                                coincide
+                            </div>
+                            <svg
+                                id="avg-mvf-avg"
+                                viewBox="0 0 360 260"
+                                role="img"
+                                aria-label="The averaged marginal value functions: R declines from 1 and stops at $500k, sitting entirely above P and Q, which coincide and decline across the full $1m"
+                            ></svg>
+                        </div>
+                    </div>
+                    <p>Finally, we convert back to tranche representation:</p>
                     <div class="tbl-wrap" style="margin: 8px 0 16px">
                         <table>
                             <thead>

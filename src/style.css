@@ -97,6 +97,9 @@
   .col-q { color: var(--q); font-weight: 500; }
   .col-r { color: var(--r); font-weight: 500; }
   .tables-row { display: flex; gap: 28px; flex-wrap: wrap; align-items: flex-start; }
+
+  .chart-row { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; margin: 8px 0 16px; }
+  .chart-row .chart-wrap { flex: 1 1 260px; min-width: 240px; }
   .tbl-wrap { overflow-x: auto; max-width: 100%; }
 
   tr.tranche-done td { background: #EEF3EF; }
