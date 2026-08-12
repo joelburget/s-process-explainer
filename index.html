@@ -830,24 +830,42 @@
                     <p>
                         To calculate the average MVF, shown below, we sample
                         from both MVFs at each significant point ($0, $500k, and
-                        $1m), averaging the result. Note that the MVF shown here
-                        is normalized to have values from 0 to 1. Because A
-                        assigns <span class="col-q">Q</span> no utility and B
-                        assigns <span class="col-p">P</span> none, both are
-                        dragged down — while <span class="col-r">R</span>, which
-                        both endorse, stays in place.
+                        $1m), averaging the result. Because A assigns
+                        <span class="col-q">Q</span> no utility and B assigns
+                        <span class="col-p">P</span> none, both are dragged down
+                        — while <span class="col-r">R</span>, which both
+                        endorse, stays in place.
                     </p>
                     <div class="chart-row">
                         <div class="chart-wrap" style="max-width: 440px">
                             <div class="tbl-caption">
-                                Average of A and B, normalized — P and Q
-                                coincide
+                                Average of A and B — P and Q coincide
+                            </div>
+                            <div
+                                class="btn-row"
+                                role="group"
+                                aria-label="Averaged chart scale"
+                            >
+                                <button
+                                    class="chip"
+                                    data-avg-scale="actual"
+                                    aria-pressed="true"
+                                >
+                                    Actual utils/$
+                                </button>
+                                <button
+                                    class="chip"
+                                    data-avg-scale="normalized"
+                                    aria-pressed="false"
+                                >
+                                    Normalized to 1
+                                </button>
                             </div>
                             <svg
                                 id="avg-mvf-avg"
                                 viewBox="0 0 360 260"
                                 role="img"
-                                aria-label="The averaged marginal value functions: R declines from 1 and stops at $500k, sitting entirely above P and Q, which coincide and decline across the full $1m"
+                                aria-label="The averaged marginal value functions: R declines and stops at $500k, sitting entirely above P and Q, which coincide and decline across the full $1m"
                             ></svg>
                         </div>
                     </div>

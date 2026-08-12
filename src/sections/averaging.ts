@@ -66,7 +66,44 @@ const CHARTS: Chart[] = [
       { colorVar: "--r", label: "R", points: SHARED_R, labelAt: [220, 0.5] },
     ],
   },
-  {
+];
+
+/**
+ * The averaged chart in both scales. "actual" keeps the same axis as A's
+ * and B's charts, so the favorites visibly average down to half height;
+ * "normalized" rescales so the top value is 1, as the app displays it.
+ */
+const AVG_VARIANTS: Record<"actual" | "normalized", Chart> = {
+  actual: {
+    svgId: "avg-mvf-avg",
+    yMax: 0.78,
+    yTicks: [0.2, 0.4, 0.6],
+    yAxisLabel: "utils/$",
+    curves: [
+      { colorVar: "--r", label: "R", points: SHARED_R, labelAt: [220, 0.5] },
+      {
+        colorVar: "--q",
+        label: "Q",
+        points: [
+          [0, 0.35],
+          [1000, 0.25],
+        ],
+        labelAt: [610, 0.33],
+      },
+      {
+        colorVar: "--p",
+        label: "P",
+        points: [
+          [0, 0.35],
+          [1000, 0.25],
+        ],
+        labelAt: [790, 0.2],
+        dashed: true,
+        noFill: true,
+      },
+    ],
+  },
+  normalized: {
     svgId: "avg-mvf-avg",
     yMax: 1.08,
     yTicks: [0.5, 1],
@@ -103,10 +140,11 @@ const CHARTS: Chart[] = [
       },
     ],
   },
-];
+};
 
 function drawChart(chart: Chart): void {
   const svg = byId<HTMLElement>(chart.svgId) as unknown as SVGSVGElement;
+  svg.innerHTML = "";
   const x = (k: number): number => ML + (k / X_MAX) * (W - ML - MR);
   const y = (u: number): number =>
     MT + (1 - u / chart.yMax) * (H - MT - MB);
@@ -178,4 +216,16 @@ function drawChart(chart: Chart): void {
 
 export function initAveraging(): void {
   CHARTS.forEach(drawChart);
+  drawChart(AVG_VARIANTS.actual);
+
+  const buttons = document.querySelectorAll<HTMLButtonElement>("[data-avg-scale]");
+  buttons.forEach((button) =>
+    button.addEventListener("click", () => {
+      const scale = button.dataset["avgScale"] as keyof typeof AVG_VARIANTS;
+      drawChart(AVG_VARIANTS[scale]);
+      buttons.forEach((b) =>
+        b.setAttribute("aria-pressed", String(b === button)),
+      );
+    }),
+  );
 }
