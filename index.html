@@ -4,6 +4,21 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>What is the S-Process?</title>
+        <script>
+            // Set the theme before first paint to avoid a flash. Priority:
+            // ?theme= URL param, then saved choice, then system preference.
+            (function () {
+                var forced = new URLSearchParams(location.search).get("theme");
+                var stored = forced || localStorage.getItem("theme");
+                var dark =
+                    stored != null
+                        ? stored === "dark"
+                        : matchMedia("(prefers-color-scheme: dark)").matches;
+                document.documentElement.dataset.theme = dark
+                    ? "dark"
+                    : "light";
+            })();
+        </script>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
@@ -13,6 +28,11 @@
     </head>
     <body>
         <header>
+            <button
+                id="theme-toggle"
+                class="theme-toggle"
+                aria-label="Toggle color theme"
+            ></button>
             <div class="wrap">
                 <h1>What is the S-Process?</h1>
                 <p class="lede">

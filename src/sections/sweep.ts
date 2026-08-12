@@ -29,70 +29,82 @@ const fundedQ = (u: number): number =>
 
 type TrancheState = "idle" | "active" | "done";
 
-export function initSweep(): void {
+/** Returns a redraw hook so the chart can be rebuilt on theme change. */
+export function initSweep(): () => void {
   const svg = byId<HTMLElement>("sweep-svg") as unknown as SVGSVGElement;
 
-  // -- static chart ---------------------------------------------------------
-  svg.appendChild(
-    svgEl("line", { x1: ML, y1: y(Y_MIN), x2: W - MR, y2: y(Y_MIN), stroke: cssVar("--line"), "stroke-width": 1 }),
-  );
-  svg.appendChild(
-    svgEl("line", { x1: ML, y1: MT, x2: ML, y2: y(Y_MIN), stroke: cssVar("--line"), "stroke-width": 1 }),
-  );
-  for (const d of [0, 250, 500, 750, 1000]) {
-    const tick = svgEl("text", {
-      x: x(d), y: y(Y_MIN) + 18, "text-anchor": "middle", "font-size": 11, fill: cssVar("--soft"),
+  // Chart elements the dynamic render updates; reassigned by build().
+  let fillP!: SVGPathElement;
+  let fillQ!: SVGPathElement;
+  let sweepLine!: SVGLineElement;
+  let dotP!: SVGCircleElement;
+  let dotQ!: SVGCircleElement;
+
+  function build(): void {
+    svg.innerHTML = "";
+
+    // -- static chart -------------------------------------------------------
+    svg.appendChild(
+      svgEl("line", { x1: ML, y1: y(Y_MIN), x2: W - MR, y2: y(Y_MIN), stroke: cssVar("--line"), "stroke-width": 1 }),
+    );
+    svg.appendChild(
+      svgEl("line", { x1: ML, y1: MT, x2: ML, y2: y(Y_MIN), stroke: cssVar("--line"), "stroke-width": 1 }),
+    );
+    for (const d of [0, 250, 500, 750, 1000]) {
+      const tick = svgEl("text", {
+        x: x(d), y: y(Y_MIN) + 18, "text-anchor": "middle", "font-size": 11, fill: cssVar("--soft"),
+      });
+      tick.textContent = d === 0 ? "$0" : `$${d}k`;
+      svg.appendChild(tick);
+      svg.appendChild(svgEl("line", { x1: x(d), y1: y(Y_MIN), x2: x(d), y2: y(Y_MIN) + 4, stroke: cssVar("--line") }));
+    }
+    for (const u of [0.4, 0.5, 0.6, 0.7]) {
+      const tick = svgEl("text", {
+        x: ML - 8, y: y(u) + 4, "text-anchor": "end", "font-size": 11, fill: cssVar("--soft"),
+      });
+      tick.textContent = u.toFixed(1);
+      svg.appendChild(tick);
+      svg.appendChild(svgEl("line", { x1: ML, y1: y(u), x2: W - MR, y2: y(u), stroke: cssVar("--grid"), "stroke-width": 1 }));
+    }
+    const yLabel = svgEl("text", { x: ML - 8, y: MT - 2, "text-anchor": "end", "font-size": 11, fill: cssVar("--soft") });
+    yLabel.textContent = "utils/$";
+    svg.appendChild(yLabel);
+    const xLabel = svgEl("text", { x: W - MR, y: y(Y_MIN) + 34, "text-anchor": "end", "font-size": 11, fill: cssVar("--soft") });
+    xLabel.textContent = "funding received by the proposal";
+    svg.appendChild(xLabel);
+
+    // funded-area fills, drawn under the curves and updated per frame
+    fillP = svgEl("path", { fill: cssVar("--p"), opacity: 0.16 });
+    fillQ = svgEl("path", { fill: cssVar("--q"), opacity: 0.16 });
+    svg.appendChild(fillP);
+    svg.appendChild(fillQ);
+
+    // curves, drawn down to the y-floor to show the vertical stop
+    svg.appendChild(svgEl("path", {
+      d: `M ${x(0)} ${y(0.7)} L ${x(250)} ${y(0.6)} L ${x(250)} ${y(Y_MIN)}`,
+      fill: "none", stroke: cssVar("--p"), "stroke-width": 2.5,
+    }));
+    svg.appendChild(svgEl("path", {
+      d: `M ${x(0)} ${y(0.6)} L ${x(750)} ${y(0.5)} L ${x(750)} ${y(Y_MIN)}`,
+      fill: "none", stroke: cssVar("--q"), "stroke-width": 2.5,
+    }));
+    const labelP = svgEl("text", { x: x(120), y: y(0.66) - 8, "font-size": 12, fill: cssVar("--p"), "font-weight": 600 });
+    labelP.textContent = "P";
+    svg.appendChild(labelP);
+    const labelQ = svgEl("text", { x: x(420), y: y(0.545) - 8, "font-size": 12, fill: cssVar("--q"), "font-weight": 600 });
+    labelQ.textContent = "Q";
+    svg.appendChild(labelQ);
+
+    // sweep line + intersection dots
+    sweepLine = svgEl("line", {
+      x1: ML, x2: W - MR, stroke: cssVar("--ink"), "stroke-width": 1.5, "stroke-dasharray": "5 4",
     });
-    tick.textContent = d === 0 ? "$0" : `$${d}k`;
-    svg.appendChild(tick);
-    svg.appendChild(svgEl("line", { x1: x(d), y1: y(Y_MIN), x2: x(d), y2: y(Y_MIN) + 4, stroke: cssVar("--line") }));
+    svg.appendChild(sweepLine);
+    dotP = svgEl("circle", { r: 4.5, fill: cssVar("--p"), stroke: cssVar("--panel"), "stroke-width": 1.5 });
+    dotQ = svgEl("circle", { r: 4.5, fill: cssVar("--q"), stroke: cssVar("--panel"), "stroke-width": 1.5 });
+    svg.appendChild(dotP);
+    svg.appendChild(dotQ);
   }
-  for (const u of [0.4, 0.5, 0.6, 0.7]) {
-    const tick = svgEl("text", {
-      x: ML - 8, y: y(u) + 4, "text-anchor": "end", "font-size": 11, fill: cssVar("--soft"),
-    });
-    tick.textContent = u.toFixed(1);
-    svg.appendChild(tick);
-    svg.appendChild(svgEl("line", { x1: ML, y1: y(u), x2: W - MR, y2: y(u), stroke: cssVar("--grid"), "stroke-width": 1 }));
-  }
-  const yLabel = svgEl("text", { x: ML - 8, y: MT - 2, "text-anchor": "end", "font-size": 11, fill: cssVar("--soft") });
-  yLabel.textContent = "utils/$";
-  svg.appendChild(yLabel);
-  const xLabel = svgEl("text", { x: W - MR, y: y(Y_MIN) + 34, "text-anchor": "end", "font-size": 11, fill: cssVar("--soft") });
-  xLabel.textContent = "funding received by the proposal";
-  svg.appendChild(xLabel);
-
-  // funded-area fills, drawn under the curves and updated per frame
-  const fillP = svgEl("path", { fill: cssVar("--p"), opacity: 0.16 });
-  const fillQ = svgEl("path", { fill: cssVar("--q"), opacity: 0.16 });
-  svg.appendChild(fillP);
-  svg.appendChild(fillQ);
-
-  // curves, drawn down to the y-floor to show the vertical stop
-  svg.appendChild(svgEl("path", {
-    d: `M ${x(0)} ${y(0.7)} L ${x(250)} ${y(0.6)} L ${x(250)} ${y(Y_MIN)}`,
-    fill: "none", stroke: cssVar("--p"), "stroke-width": 2.5,
-  }));
-  svg.appendChild(svgEl("path", {
-    d: `M ${x(0)} ${y(0.6)} L ${x(750)} ${y(0.5)} L ${x(750)} ${y(Y_MIN)}`,
-    fill: "none", stroke: cssVar("--q"), "stroke-width": 2.5,
-  }));
-  const labelP = svgEl("text", { x: x(120), y: y(0.66) - 8, "font-size": 12, fill: cssVar("--p"), "font-weight": 600 });
-  labelP.textContent = "P";
-  svg.appendChild(labelP);
-  const labelQ = svgEl("text", { x: x(420), y: y(0.545) - 8, "font-size": 12, fill: cssVar("--q"), "font-weight": 600 });
-  labelQ.textContent = "Q";
-  svg.appendChild(labelQ);
-
-  // sweep line + intersection dots
-  const sweepLine = svgEl("line", {
-    x1: ML, x2: W - MR, stroke: cssVar("--ink"), "stroke-width": 1.5, "stroke-dasharray": "5 4",
-  });
-  svg.appendChild(sweepLine);
-  const dotP = svgEl("circle", { r: 4.5, fill: cssVar("--p"), stroke: cssVar("--panel"), "stroke-width": 1.5 });
-  const dotQ = svgEl("circle", { r: 4.5, fill: cssVar("--q"), stroke: cssVar("--panel"), "stroke-width": 1.5 });
-  svg.appendChild(dotP);
-  svg.appendChild(dotQ);
 
   // -- dynamic rendering ----------------------------------------------------
   const slider = byId<HTMLInputElement>("sweep-slider");
@@ -152,5 +164,10 @@ export function initSweep(): void {
   }
 
   slider.addEventListener("input", render);
-  render();
+  const redraw = (): void => {
+    build();
+    render();
+  };
+  redraw();
+  return redraw;
 }

@@ -11,8 +11,29 @@
     --hold: #98A0AA;
     --good: #2E7D5B;
     --bad: #B4472F;
+    --tranche-done-bg: #EEF3EF;
+    --tranche-active-bg: #FBF3E8;
     --serif: "Spectral", Georgia, serif;
     --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    color-scheme: light;
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #15171C;
+    --panel: #1D2027;
+    --ink: #E7E4DC;
+    --soft: #9AA1AE;
+    --line: #373C46;
+    --grid: #242832;
+    --p: #E58A45;
+    --q: #9F87E2;
+    --r: #DA76A3;
+    --hold: #6B7380;
+    --good: #55B189;
+    --bad: #DB7B60;
+    --tranche-done-bg: #20302A;
+    --tranche-active-bg: #33291A;
+    color-scheme: dark;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -40,7 +61,15 @@
   .prose { max-width: 660px; }
 
   /* ---------- header ---------- */
-  header { padding: 72px 0 44px; border-bottom: 1px solid var(--line); }
+  header { padding: 72px 0 44px; border-bottom: 1px solid var(--line); position: relative; }
+  .theme-toggle {
+    position: absolute; top: 22px; right: 24px;
+    width: 38px; height: 38px; border-radius: 999px;
+    font-size: 16px; line-height: 1;
+    border: 1px solid var(--line); background: var(--panel); color: var(--soft);
+    cursor: pointer;
+  }
+  .theme-toggle:hover { color: var(--ink); border-color: var(--ink); }
   h1 {
     font-weight: 600; font-size: clamp(38px, 6vw, 58px);
     line-height: 1.05; letter-spacing: -0.015em; margin-bottom: 20px;
@@ -98,8 +127,8 @@
   .chart-row .chart-wrap { flex: 1 1 260px; min-width: 240px; }
   .tbl-wrap { overflow-x: auto; max-width: 100%; }
 
-  tr.tranche-done td { background: #EEF3EF; }
-  tr.tranche-active td { background: #FBF3E8; }
+  tr.tranche-done td { background: var(--tranche-done-bg); }
+  tr.tranche-active td { background: var(--tranche-active-bg); }
   tr.tranche-idle td { opacity: .55; }
 
   /* ---------- controls ---------- */
@@ -144,7 +173,7 @@
 
   /* split bar (§3) */
   .split-bar { display: flex; height: 34px; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; margin: 8px 0 6px; }
-  .split-seg { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 12.5px; color: #fff; min-width: 0; transition: width .2s ease; white-space: nowrap; overflow: hidden; }
+  .split-seg { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 12.5px; color: var(--paper); min-width: 0; transition: width .2s ease; white-space: nowrap; overflow: hidden; }
 
   /* ---------- svg charts ---------- */
   svg { display: block; max-width: 100%; height: auto; }

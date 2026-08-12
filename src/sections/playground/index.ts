@@ -17,7 +17,8 @@ import {
 } from "./state";
 import { renderTowers } from "./towers";
 
-export function initPlayground(): void {
+/** Returns a redraw hook so the output charts can be rebuilt on theme change. */
+export function initPlayground(): () => void {
   let state: PlaygroundState = defaultState();
   let result: SProcessResult = recomputeResult();
 
@@ -343,4 +344,5 @@ export function initPlayground(): void {
   });
 
   applyPreset(0);
+  return renderOutputs;
 }

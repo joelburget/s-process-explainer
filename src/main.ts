@@ -4,9 +4,18 @@ import { initSweep } from "./sections/sweep";
 import { initSplit } from "./sections/split";
 import { initPlayground } from "./sections/playground";
 import { initAveraging } from "./sections/averaging";
+import { initTheme } from "./theme";
 
 initScenario();
-initSweep();
+const redrawSweep = initSweep();
 initSplit();
-initPlayground();
-initAveraging();
+const redrawPlayground = initPlayground();
+const redrawAveraging = initAveraging();
+
+// The SVG charts resolve their colors at draw time, so a theme change
+// re-draws them; everything else follows the CSS custom properties.
+initTheme(() => {
+  redrawSweep();
+  redrawPlayground();
+  redrawAveraging();
+});

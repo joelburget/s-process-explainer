@@ -214,18 +214,24 @@ function drawChart(chart: Chart): void {
   }
 }
 
-export function initAveraging(): void {
-  CHARTS.forEach(drawChart);
-  drawChart(AVG_VARIANTS.actual);
+/** Returns a redraw hook so the charts can be rebuilt on theme change. */
+export function initAveraging(): () => void {
+  let scale: keyof typeof AVG_VARIANTS = "actual";
+  const redraw = (): void => {
+    CHARTS.forEach(drawChart);
+    drawChart(AVG_VARIANTS[scale]);
+  };
+  redraw();
 
   const buttons = document.querySelectorAll<HTMLButtonElement>("[data-avg-scale]");
   buttons.forEach((button) =>
     button.addEventListener("click", () => {
-      const scale = button.dataset["avgScale"] as keyof typeof AVG_VARIANTS;
+      scale = button.dataset["avgScale"] as keyof typeof AVG_VARIANTS;
       drawChart(AVG_VARIANTS[scale]);
       buttons.forEach((b) =>
         b.setAttribute("aria-pressed", String(b === button)),
       );
     }),
   );
+  return redraw;
 }
