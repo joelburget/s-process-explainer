@@ -43,8 +43,8 @@
                         >
                         to allocate between proposals
                         <span class="col-p">P</span> and
-                        <span class="col-q">Q</span>. Both evaluators really want
-                        to support <span class="col-p">P</span>, so
+                        <span class="col-q">Q</span>. Both evaluators really
+                        want to support <span class="col-p">P</span>, so
                         <span class="col-p">P</span> is initially the highest
                         priority for both evaluators. But
                         <span class="col-p">P</span> is just one guy with a
@@ -367,17 +367,17 @@
                         (before the first dollar went to
                         <span class="col-q">Q</span>). Hence the concept of
                         <span class="term">endorsement levels</span>: how much
-                        each evaluator ensured that each proposal would
-                        receive, whether they were paying for it or someone else
-                        was. The amount actually deducted from a evaluator's
-                        budget is their <span class="term">contribution</span>.
+                        each evaluator ensured that each proposal would receive,
+                        whether they were paying for it or someone else was. The
+                        amount actually deducted from a evaluator's budget is
+                        their <span class="term">contribution</span>.
                     </p>
                     <p>
-                        Since we have two evaluators, each endorsed dollar
-                        might only "cost" ½ of that, if both evaluators agree
-                        on how it should be spent (in general, endorsement
-                        levels can be up to <em>n</em> times contributions, if
-                        there are <em>n</em> evaluators). We can create an
+                        Since we have two evaluators, each endorsed dollar might
+                        only "cost" ½ of that, if both evaluators agree on how
+                        it should be spent (in general, endorsement levels can
+                        be up to <em>n</em> times contributions, if there are
+                        <em>n</em> evaluators). We can create an
                         endorsement-levels table, and compare it to the
                         contributions table:
                     </p>
@@ -454,8 +454,8 @@
                 <h3>Proportional contributions</h3>
 
                 <p>
-                    When several evaluators endorse the same dollar, who pays how
-                    much of it? The rule is:
+                    When several evaluators endorse the same dollar, who pays
+                    how much of it? The rule is:
                     <strong>in proportion to their budgets</strong>. In the case
                     above, both evaluators have the same budget, so they have
                     equal accountability for any dollar they both endorse, but
@@ -538,14 +538,14 @@
                         additional $250.
                     </p>
                     <p>
-                        So the algorithm iteratively increases each
-                        evaluator's endorsement level by the maximum safe
-                        amount, converging on the endorsement levels which cause
-                        them all to spend their whole budget. You might imagine
-                        this as a kind of simulation: we simulate what each
-                        evaluator would do with a larger budget than they're
-                        actually in charge of, then charge them only for the
-                        part of it they're responsible for.
+                        So the algorithm iteratively increases each evaluator's
+                        endorsement level by the maximum safe amount, converging
+                        on the endorsement levels which cause them all to spend
+                        their whole budget. You might imagine this as a kind of
+                        simulation: we simulate what each evaluator would do
+                        with a larger budget than they're actually in charge of,
+                        then charge them only for the part of it they're
+                        responsible for.
                     </p>
                     <p>
                         The playground below runs a real implementation. Pick a
@@ -657,20 +657,71 @@
                 </div>
 
                 <div class="prose">
-                    <p class="footnote">
-                        The surprise is that if we follow these rules (namely:
-                        (1) fund projects by tranche — i.e. we start with what
-                        evaluators estimate as the highest utility per dollar,
-                        and continue spending dollars with less utility, but
-                        always the highest utility available at that point — and
-                        (2) proportional contributions — when multiple
-                        evaluators help fund the same dollar, they should each
-                        direct the same proportion of their total spending to
-                        that dollar), then we <em>must</em> use the S-Process.
-                        That is, if your procedure follows those rules, then it
-                        must always output the same result as the S-Process.
+                    <p>
+                        Stepping back, everything the algorithm does follows
+                        from two rules we've already seen:
+                    </p>
+                    <p>
+                        <strong>1.</strong> <em>Fund projects by tranche</em> —
+                        start with what evaluators estimate as the highest
+                        utility per dollar, and continue spending dollars with
+                        less utility, but always the highest utility available
+                        at that point (the sweep from §2).<br />
+                        <strong>2.</strong> <em>Proportional contributions</em>
+                        — when multiple evaluators help fund the same dollar,
+                        they should each direct the same proportion of their
+                        total spending to that dollar (§3).
+                    </p>
+                    <p>
+                        The surprise is that these two rules pin the allocation
+                        down completely: any procedure that follows them —
+                        however it's implemented — must output the same result
+                        as the S-Process. The algorithm above is just one way of
+                        finding it.
+                    </p>
+                    <p>
+                        To see why, notice that the rules eliminate every choice
+                        except one number per evaluator. By rule 1, an
+                        evaluator's behavior is completely described by how far
+                        down they sweep their MVF: they endorse every dollar
+                        above the line and nothing below it. By rule 2, once we
+                        know everyone's sweep depth there is no choice left
+                        about who pays for what — each dollar's cost is split,
+                        in proportion to budgets, among exactly the evaluators
+                        whose sweeps reach it.
+                    </p>
+                    <p>
+                        That leaves only the depths themselves, and those are
+                        forced by the requirement that each evaluator spends
+                        exactly their budget. Sweeping deeper only ever
+                        increases what an evaluator is charged — they pick up
+                        shares of new dollars while their shares of old ones are
+                        unchanged. So, given what everyone else does, there is
+                        exactly one depth at which an evaluator's charge comes
+                        out to exactly their budget — and exactly one profile of
+                        depths that works for everyone at once. That profile is
+                        the fixed point the algorithm converges to from below:
+                        you can watch it in the playground, where endorsement
+                        levels only ever ratchet upward across epochs while the
+                        remaining-budget curve falls to zero.
                     </p>
                 </div>
+
+                <aside class="aside">
+                    <span class="aside-label">Aside</span>
+                    A more concrete way to see why order of operations can't
+                    matter: imagine the evaluators spending their budgets a
+                    penny at a time, each always funding their favorite
+                    not-yet-funded marginal dollar. When an evaluator wants to
+                    help fund a dollar someone else has already paid for, they
+                    don't skip it — they reimburse the earlier funders exactly
+                    enough that everyone funding that dollar has paid in
+                    proportion to their budgets, and the reimbursed money goes
+                    toward its owner's next-favorite dollar. The reimbursements
+                    exactly cancel the effect of who moved first, so no matter
+                    how the turns are ordered, everyone ends up in the same
+                    place: the S-Process allocation.
+                </aside>
             </section>
 
             <!-- ================= §5 ================= -->
@@ -843,12 +894,12 @@
                         matching pledge (for every $1 SFF gives to them, they'll
                         receive some amount of money from other donors). We
                         created a set of
-                        <span class="term">matching evaluators</span> by
-                        taking the tranche tables of regular evaluators and
-                        adjusting them to account for the extra value some
-                        dollars provide due to matching. We then ran an
-                        S-Process, where both regular evaluators and matching
-                        evaluators both receive some budget.
+                        <span class="term">matching evaluators</span> by taking
+                        the tranche tables of regular evaluators and adjusting
+                        them to account for the extra value some dollars provide
+                        due to matching. We then ran an S-Process, where both
+                        regular evaluators and matching evaluators both receive
+                        some budget.
                     </p>
                     <p>
                         Finally, the S-Process is a deterministic algorithm
