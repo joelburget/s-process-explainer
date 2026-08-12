@@ -35,7 +35,7 @@
                 <h2>Example</h2>
                 <div class="prose">
                     <p>
-                        Imagine two reviewers,
+                        Imagine two evaluators,
                         <strong>A</strong> and <strong>B</strong>, each with a
                         budget of
                         <span style="font-family: var(--mono); font-size: 15px"
@@ -43,17 +43,17 @@
                         >
                         to allocate between proposals
                         <span class="col-p">P</span> and
-                        <span class="col-q">Q</span>. Both reviewers really want
+                        <span class="col-q">Q</span>. Both evaluators really want
                         to support <span class="col-p">P</span>, so
                         <span class="col-p">P</span> is initially the highest
-                        priority for both reviewers. But
+                        priority for both evaluators. But
                         <span class="col-p">P</span> is just one guy with a
                         fixed budget, whose work can't be easily scaled up, so
                         it only makes sense to allocate
                         <strong>$250k</strong> to it.
                         <span class="col-q">Q</span> is clearly a lower priority
                         initially, but it can absorb much more funding, so both
-                        reviewers agree that it should receive the rest of the
+                        evaluators agree that it should receive the rest of the
                         funding after <span class="col-p">P</span> has received
                         $250k.
                     </p>
@@ -120,7 +120,7 @@
                         <div style="flex: 1 1 300px; min-width: 260px">
                             <div class="tbl-caption">
                                 What each proposal receives (marker = what both
-                                reviewers actually want)
+                                evaluators actually want)
                             </div>
                             <div class="bars">
                                 <div class="bar-row">
@@ -191,7 +191,7 @@
                         <span class="term">tranche table</span>. Each row
                         (tranche) says how the next slice of the
                         <em>shared</em> budget should be spent, in priority
-                        order. In our example, both recommenders have the same
+                        order. In our example, both evaluators have the same
                         preferences, so they both write the same tranche table:
                     </p>
                     <div class="tbl-wrap" style="margin: 8px 0 16px">
@@ -243,7 +243,7 @@
 
                 <div class="panel" id="sweep-panel">
                     <div class="panel-title">
-                        <span>The sweep — one reviewer's MVF</span
+                        <span>The sweep — one evaluator's MVF</span
                         ><span class="status" id="sweep-status"></span>
                     </div>
                     <div class="slider-row">
@@ -367,17 +367,17 @@
                         (before the first dollar went to
                         <span class="col-q">Q</span>). Hence the concept of
                         <span class="term">endorsement levels</span>: how much
-                        each recommender ensured that each proposal would
+                        each evaluator ensured that each proposal would
                         receive, whether they were paying for it or someone else
-                        was. The amount actually deducted from a reviewer's
+                        was. The amount actually deducted from a evaluator's
                         budget is their <span class="term">contribution</span>.
                     </p>
                     <p>
-                        Since we have two recommenders, each endorsed dollar
-                        might only "cost" ½ of that, if both recommenders agree
+                        Since we have two evaluators, each endorsed dollar
+                        might only "cost" ½ of that, if both evaluators agree
                         on how it should be spent (in general, endorsement
                         levels can be up to <em>n</em> times contributions, if
-                        there are <em>n</em> recommenders). We can create an
+                        there are <em>n</em> evaluators). We can create an
                         endorsement-levels table, and compare it to the
                         contributions table:
                     </p>
@@ -442,10 +442,10 @@
                         phrased in terms of
                         <em>endorsement levels</em> rather than
                         <em>contributions</em>. This means that at each step of
-                        the process the "recommender" (represented in the
+                        the process the "evaluator" (represented in the
                         algorithm as a tranche table) looks at the level of
                         funding each proposal is currently receiving (from all
-                        recommenders), then adjusts their spending so that
+                        evaluators), then adjusts their spending so that
                         proposals which are under-funded (according to their
                         UAF) receive more.
                     </p>
@@ -454,10 +454,10 @@
                 <h3>Proportional contributions</h3>
 
                 <p>
-                    When several reviewers endorse the same dollar, who pays how
+                    When several evaluators endorse the same dollar, who pays how
                     much of it? The rule is:
                     <strong>in proportion to their budgets</strong>. In the case
-                    above, both recommenders have the same budget, so they have
+                    above, both evaluators have the same budget, so they have
                     equal accountability for any dollar they both endorse, but
                     if Alice had a budget twice that of Bob’s, she’d be
                     accountable for ⅔ of each shared dollar.
@@ -481,7 +481,7 @@
                         <div class="slider-val" id="split-val">$500k</div>
                     </div>
                     <div class="tbl-caption">
-                        Both reviewers endorse P for its first $250k. Each
+                        Both evaluators endorse P for its first $250k. Each
                         shared dollar splits like this:
                     </div>
                     <div class="split-bar" aria-hidden="true">
@@ -503,11 +503,11 @@
                     <p>
                         Why split proportionally rather than evenly? The problem
                         with splitting each dollar evenly is that the
-                        preferences of the recommender with less funding get
+                        preferences of the evaluator with less funding get
                         washed out: if A's budget is $100k but B's budget is
                         $900k, the result will look exactly like B's preference.
                         In contrast, when sharing proportionally to total
-                        budget, the smaller recommender can have an effect.
+                        budget, the smaller evaluator can have an effect.
                     </p>
                 </div>
             </section>
@@ -522,7 +522,7 @@
                         levels: for each dollar that multiple evaluators
                         endorse, we split the contribution for that dollar in
                         proportion to their budgets. We just need to find the
-                        contribution level for each recommender that won't put
+                        contribution level for each evaluator that won't put
                         them over budget.
                     </p>
                     <p>
@@ -539,7 +539,7 @@
                     </p>
                     <p>
                         So the algorithm iteratively increases each
-                        recommender's endorsement level by the maximum safe
+                        evaluator's endorsement level by the maximum safe
                         amount, converging on the endorsement levels which cause
                         them all to spend their whole budget. You might imagine
                         this as a kind of simulation: we simulate what each
@@ -660,11 +660,11 @@
                     <p class="footnote">
                         The surprise is that if we follow these rules (namely:
                         (1) fund projects by tranche — i.e. we start with what
-                        recommenders estimate as the highest utility per dollar,
+                        evaluators estimate as the highest utility per dollar,
                         and continue spending dollars with less utility, but
                         always the highest utility available at that point — and
                         (2) proportional contributions — when multiple
-                        recommenders help fund the same dollar, they should each
+                        evaluators help fund the same dollar, they should each
                         direct the same proportion of their total spending to
                         that dollar), then we <em>must</em> use the S-Process.
                         That is, if your procedure follows those rules, then it
@@ -788,14 +788,14 @@
                         <span class="col-q">Q</span> gets any money! In general,
                         averaging is good for proposals which a lot of
                         evaluators like at least a little, which can cost
-                        proposals which fewer recommenders like a lot!
+                        proposals which fewer evaluators like a lot!
                     </p>
                     <p>
                         We think that both types of proposals have merit, and we
-                        use a <span class="term">mean recommender</span> which
+                        use a <span class="term">mean evaluator</span> which
                         takes the average of all the human evaluators'
                         evaluations, but we then use the S-Process to send money
-                        through all of the recommenders. This way proposals with
+                        through all of the evaluators. This way proposals with
                         less enthusiastic broad support and proposals with
                         strong polarized support can both receive some funding.
                     </p>
@@ -831,7 +831,7 @@
                         funding round:
                     </p>
                     <p>
-                        <strong>1.</strong> One recommender wrote a program to
+                        <strong>1.</strong> One evaluator wrote a program to
                         group together different types of projects, each of
                         which they find valuable in different ways, and run an
                         instance of the S-Process on each of these groups. You
@@ -843,12 +843,12 @@
                         matching pledge (for every $1 SFF gives to them, they'll
                         receive some amount of money from other donors). We
                         created a set of
-                        <span class="term">matching recommenders</span> by
-                        taking the tranche tables of regular recommenders and
+                        <span class="term">matching evaluators</span> by
+                        taking the tranche tables of regular evaluators and
                         adjusting them to account for the extra value some
                         dollars provide due to matching. We then ran an
-                        S-Process, where both regular recommenders and matching
-                        recommenders both receive some budget.
+                        S-Process, where both regular evaluators and matching
+                        evaluators both receive some budget.
                     </p>
                     <p>
                         Finally, the S-Process is a deterministic algorithm
@@ -880,7 +880,7 @@
                         your way of saying, for any budget, how you would spend
                         it (in terms of endorsement levels). But contributions
                         depend on both the endorsement levels and also all of
-                        the other recommenders.
+                        the other evaluators.
                     </p>
                 </div>
             </section>

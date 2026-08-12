@@ -48,14 +48,14 @@ export const PRESETS: readonly Preset[] = [
   {
     label: "§1 · perfect agreement",
     note:
-      "Identical preferences — every band is shared evenly, and each reviewer's " +
+      "Identical preferences — every band is shared evenly, and each evaluator's " +
       "endorsements reach twice their personal budget.",
     state: defaultState,
   },
   {
     label: "polarized favorites",
     note:
-      "Complete disagreement — no dollars overlap, so nothing is shared: each reviewer " +
+      "Complete disagreement — no dollars overlap, so nothing is shared: each evaluator " +
       "simply funds their own favorite, solo. Converges instantly.",
     state: () => ({
       nProps: 2,
@@ -98,7 +98,7 @@ export const PRESETS: readonly Preset[] = [
     label: "broad vs. narrow",
     note:
       "A champions P, B champions Q, and C spreads support around (like a mean " +
-      "recommender) — strong narrow favorites and mild broad support both end up " +
+      "evaluator) — strong narrow favorites and mild broad support both end up " +
       "funded (§5's point).",
     state: () => ({
       nProps: 3,
@@ -113,7 +113,7 @@ export const PRESETS: readonly Preset[] = [
   {
     label: "unspendable budget",
     note:
-      "The tranche tables only cover $200k of a $1m pool — the simulated reviewers run " +
+      "The tranche tables only cover $200k of a $1m pool — the simulated evaluators run " +
       "out of things to endorse, budgets can't be spent, and the run never converges.",
     state: () => ({
       nProps: 2,

@@ -1,7 +1,7 @@
 import { byId, cssVar, svgEl } from "../dom";
 
 /**
- * §2 — the MVF sweep for one reviewer of the §1 example:
+ * §2 — the MVF sweep for one evaluator of the §1 example:
  *   P: 0.7 utils/$ at $0 declining to 0.6 at $250k, then stops.
  *   Q: 0.6 at $0 declining to 0.5 at $750k, then stops.
  * A horizontal utility line sweeps down; a proposal's funding at level u is

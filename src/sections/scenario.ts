@@ -17,8 +17,8 @@ const SCENARIOS: Record<ScenarioKey, Scenario> = {
     ],
     status: "P is double-funded",
     note:
-      "Each reviewer independently spends their own $500k on their priorities. " +
-      "P ends up with $500k — twice what either reviewer wanted it to have.",
+      "Each evaluator independently spends their own $500k on their priorities. " +
+      "P ends up with $500k — twice what either evaluator wanted it to have.",
   },
   guess: {
     table: [
@@ -37,7 +37,7 @@ const SCENARIOS: Record<ScenarioKey, Scenario> = {
     ],
     status: "exactly right",
     note:
-      "We want to end up here: P gets its $250k, half-funded by each reviewer, " +
+      "We want to end up here: P gets its $250k, half-funded by each evaluator, " +
       "and the rest flows to Q. The S-Process is an algorithm for finding this " +
       "allocation automatically.",
   },
